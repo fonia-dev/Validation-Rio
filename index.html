@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation RIO</title>
+    <script>
+        function is_RIO(sRio, sMsisdn) {
+            if (sRio.length !== 12) return "Le code RIO doit comporter 12 caractères, ne pas mettre d'espaces";
+            if (sMsisdn.length !== 10 || sMsisdn[0] !== '0') return "Le numéro de téléphone doit commencer par 0 et faire 10 caractères";
+            var sOperateur = sRio.substr(0, 2);
+            var sTypeContrat = sRio.substr(2, 1);
+            var sRefClient = sRio.substr(3, 6);
+            if (sTypeContrat !== "P" && sTypeContrat !== "E") return "Il y a une erreur dans votre code RIO";
+            var sOrdre = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+";
+            var nRes = [0, 0, 0];
+            var sTmp = sOperateur + sTypeContrat + sRefClient + sMsisdn;
+            for (let n = 0; n < 19; n++) {
+                var nPos = sOrdre.indexOf(sTmp.substr(n, 1));
+                nRes[0] = (nRes[0] + nPos) % 37;
+                nRes[1] = ((2 * nRes[1]) + nPos) % 37;
+                nRes[2] = ((4 * nRes[2]) + nPos) % 37;
+            }
+            var sCleCalculee = sOrdre.substr(nRes[0], 1) + sOrdre.substr(nRes[1], 1) + sOrdre.substr(nRes[2], 1);
+            if (sRio.substr(9) !== sCleCalculee) return "Erreur dans le code RIO";
+            return true;
+        }
+
+        function validateForm() {
+            const num = document.getElementById('num').value;
+            const rio = document.getElementById('rio').value.toUpperCase();
+            const result = is_RIO(rio, num);
+            if (result !== true) {
+                alert(result);
+                return false;
+            }
+            alert("Le RIO est valide !");
+            return true;
+        }
+    </script>
+</head>
+<body>
+    
+    <form onsubmit="return validateForm();">
+        <img class="logo" src="./logo-itzatel.webp" alt="logo itzatel">
+            <h1>Tester votre RIO</h1>
+        <section class="Champs">
+            <div class="Num">
+                <label for="num">Numéro de téléphone :</label><br>
+                <input type="tel" id="num" name="num" required minlength="10" maxlength="10"><br><br>
+            </div>
+            <div class="RIO">
+                <label for="rio">Code RIO :</label><br>
+                <input type="text" id="rio" name="rio" required minlength="12" maxlength="12"><br><br> 
+            </div>
+        </section>
+        <button type="submit">Valider</button>
+    </form>
+</body>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: transparent; /* Fond du body transparent pour s'adapter au fond de Noloco */    color: #111827;
+    margin: 0;
+    padding: 0;
+}
+
+form {display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.2); /* Fond blanc à 20% d'opacité */
+
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 50px auto; /* Centré avec du margin en haut et en bas */
+}
+
+form h1 {
+    color: #b0163d; /* Garder la couleur distinctive */
+    font-size: 40px; /* Garder la taille de la police */
+    margin-bottom: 30px;
+    text-align: center; /* Centrer le titre */
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 150px; /* Largeur contrôlée */
+    height: 100px; /* Hauteur ajustée pour l'ovale */
+    object-fit: contain; /* S'assurer que l'image s'adapte sans être déformée */
+    border: 2px solid #b0163d; /* Contour rouge */
+    border-radius: 30%; /* Rendre le contour ovale */
+    overflow: hidden; /* Masquer les parties de l'image qui dépassent */
+}
+
+
+.Champs {
+    display: flex;
+    flex-direction: column; /* Passer en colonne pour une meilleure lisibilité sur mobile */
+    align-items: center; /* Centrer les éléments */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+input {
+    padding: 10px;
+    border: 2px solid #b0163d; /* Ajouter une bordure rouge discrète */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007828;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background-color: #005f1e; /* Assombrir le vert au survol */
+    transform: translateY(-2px); /* Légère animation au survol */
+}
+</style>
+</html>
